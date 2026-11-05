@@ -1,0 +1,68 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+
+# Coverage
+coverage
+*.lcov
+
+# Environment files (local only; keep the example)
+.env
+.env.local
+.env.*.local
+*.local
+!.env.example
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Caches
+.cache
+.eslintcache
+.stylelintcache
+.oxlintcache
+*.tsbuildinfo
+.vite
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Private keys and local credentials
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+
+# Cypress
+/cypress/videos/
+/cypress/screenshots/
+
+# Vitest
+__screenshots__/
+
+# Vite
+*.timestamp-*-*.mjs
