@@ -1,10 +1,24 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="pt-BR">
   <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Tokens de verificação/redefinição trafegam por query string: não
+         permitir que vazem via cabeçalho Referer. Reforçado pelo header
+         Referrer-Policy na hospedagem (ver README). -->
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      name="description"
+      content="Applya — crie, personalize e gerencie seus currículos para cada oportunidade."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>Applya — Currículos feitos para você</title>
   </head>
   <body>
     <div id="app"></div>
