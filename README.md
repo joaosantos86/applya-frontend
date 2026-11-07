@@ -1,370 +1,158 @@
-# Applya — Frontend
+# Applya frontend
 
-Frontend do **Applya**, aplicação pessoal para criar, editar, personalizar e
-gerenciar versões de currículo adaptadas a diferentes oportunidades de emprego.
+Applya is a personal project for building resumes tailored to job applications.
+This repository contains the Vue frontend; the API lives in
+[applya-backend](https://github.com/joaosantos86/applya-backend).
 
-Este repositório implementa a **autenticação completa** (login, cadastro,
-confirmação de e-mail, recuperação e redefinição de senha) com a identidade
-visual **Warm Peach**, integrada ao backend Go ([`applya-backend`](https://github.com/joaosantos86/applya-backend)).
+The current app covers registration, sign-in, email verification, password recovery,
+and session management. The dashboard is a placeholder with a sign-out action.
+Resume editing and export are not implemented yet. Interface copy is in Brazilian Portuguese.
 
 ## Stack
 
-| Tecnologia | Uso |
-|---|---|
-| [Vue 3](https://vuejs.org) | Interface (Composition API + `<script setup>`) |
-| [TypeScript](https://www.typescriptlang.org) | Tipagem estática |
-| [Vite](https://vite.dev) | Build e dev server |
-| [Vue Router](https://router.vuejs.org) | Rotas e guards de proteção |
-| [Pinia](https://pinia.vuejs.org) | Estado global (sessão) |
-| [Tailwind CSS v4](https://tailwindcss.com) | Estilização com design tokens |
-| [Lucide](https://lucide.dev) (`@lucide/vue`) | Ícones |
-| [Vitest](https://vitest.dev) + [@vue/test-utils](https://test-utils.vuejs.org) + happy-dom | Testes unitários |
+Vue 3 with TypeScript and `<script setup>`, Vite, Vue Router, Pinia, Tailwind CSS v4,
+and Lucide icons. API requests use native fetch through a shared HTTP client.
 
-## Como executar
+## Run locally
+
+Use Node.js 22.18+ within the 22.x release line, or 24.12+. Start the Go backend
+at `http://localhost:8080`, then run:
 
 ```sh
-npm install
-cp .env.example .env         # ajuste a VITE_API_URL se necessário
-npm run dev                  # http://localhost:5173
+npm ci
+cp .env.example .env
+npm run dev
 ```
 
-O Vite usa `localhost:5173` com porta fixa para respeitar a origem permitida
-pelo CORS do backend. Se a porta estiver ocupada, reutilize o servidor existente
-ou encerre-o antes de iniciar outro. Abra o frontend por `localhost`, não por
-`127.0.0.1`, para manter o mesmo hostname dos cookies da API.
-Reinicie o Vite após alterar `.env`.
+In PowerShell, use `Copy-Item .env.example .env` to copy the environment file.
+Open **http://localhost:5173**. Vite uses a fixed port and stops if it is already
+occupied. Use `localhost` for both services so the frontend matches the backend's
+allowed origin and cookie hostname.
 
-Para verificar a API local: `curl http://localhost:8080/health` deve retornar
-`{"status":"ok"}`. O backend não lê os arquivos de ambiente deste frontend.
+The local environment file contains:
 
-### Build de produção
+```dotenv
+VITE_API_URL=http://localhost:8080
+```
+
+This is the API origin, without `/api/v1`. Restart Vite after changing it.
+`.env` is ignored by Git; `.env.example` is tracked. Variables prefixed with
+`VITE_` are included in the browser bundle, so they must not contain secrets.
+The backend has its own configuration and does not read this file.
+
+To check that the API is running:
 
 ```sh
-npm run build      # type-check + vite build
-npm run preview    # serve o build de dist/
+curl http://localhost:8080/health
 ```
 
-### Testes
+The expected response is `{"status":"ok"}`.
 
-A suíte de testes foi removida. A configuração do Vitest foi mantida para uso
-futuro; atualmente `npm test` encerra com erro por não encontrar arquivos de teste.
+## Commands
 
-```sh
-npm test           # vitest run (uma execução)
-npm run test:watch # modo watch
-```
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the development server |
+| `npm run lint` | Run oxlint and ESLint with automatic fixes |
+| `npm run type-check` | Check TypeScript and Vue types |
+| `npm run format` | Format `src/` with Prettier |
+| `npm run build` | Check types and build into `dist/` |
+| `npm run preview` | Serve the production build locally |
 
-### Lint e formatação
+There are currently no test files. Vitest, Vue Test Utils, and happy-dom remain
+configured, but `npm test` exits with an error because no tests are found.
 
-```sh
-npm run lint     # oxlint + eslint (com --fix)
-npm run format   # prettier
-npm run type-check
-```
+## Authentication
 
-## Variáveis de ambiente
+The backend stores the session in an HTTP-only cookie. The frontend keeps the
+current user in Pinia and sends `credentials: 'include'` with every API request.
+Session credentials are not stored in localStorage or sessionStorage.
 
-| Variável | Obrigatória | Padrão (fallback em código) | Descrição |
-|---|---|---|---|
-| `VITE_API_URL` | não | `http://localhost:8080` | URL base da API (backend Go), sem barra final |
+On the first navigation, the route guard checks `/api/v1/auth/me`. Protected pages
+redirect guests to sign-in. After signing in, users return to the requested internal
+path or the dashboard. Registration requires email verification before sign-in.
+Password reset does not sign the user in automatically.
 
-**Desenvolvimento local:** o repositório já vem com `.env.example`; copie-o
-para `.env` (ignorado pelo Git) e ajuste o valor:
+The HTTP client obtains a CSRF token from `/api/v1/auth/csrf` and sends it as
+`X-CSRF-Token` on POST, PUT, PATCH, and DELETE requests. It caches the token and
+refreshes it once if a mutation returns `403 csrf_failed`. Sign-in invalidates the
+cache because the backend rotates the token. The token comes from the JSON
+response: the CSRF cookie uses `Path=/api`, so auth pages cannot read it directly.
 
-```sh
-cp .env.example .env   # Windows: copy .env.example .env
-```
+Errors are handled by code. Server errors use generic messages, and rate-limit
+feedback uses `Retry-After` when available. Password recovery accepts the expected
+202 response and shows the same success message regardless of account existence;
+operational failures leave the form available for another attempt.
 
-**Produção (Render):** defina `VITE_API_URL` no painel do serviço
-(*Environment → Environment Variables*) com a URL pública do backend
-(ex.: `https://applya-api.onrender.com`) e reimplante. Em produção, se a
-variável estiver ausente, o app exibe um aviso no console — configure antes
-de publicar.
+Email verification requires a button click. Its token is removed from the URL when
+the page opens and kept in memory; reloading requires reopening the original link.
+The reset-password page removes its token after a successful reset. The resend page
+accepts an email in the query string and lets users enter or correct it.
 
-> Não coloque credenciais privadas em variáveis `VITE_*`: tudo o que começa com
-> `VITE_` é embutido no bundle enviado ao navegador. Segredos (banco, sessão,
-> e-mail) pertencem exclusivamente ao backend.
+## Routes
 
-## Rotas
+| Path | Purpose |
+| --- | --- |
+| `/login` | Sign in |
+| `/register` | Create an account |
+| `/verify-email` | Confirm an email address |
+| `/check-email` | Request another verification email |
+| `/forgot-password` | Request a password reset |
+| `/reset-password` | Set a new password |
+| `/dashboard` | Protected placeholder page |
 
-### Públicas (acesso livre)
+Signed-in users are redirected away from `/login` and `/register`. `/` and unknown
+paths redirect to `/dashboard`, where the authentication guard applies.
 
-| Rota | Página | Observações |
-|---|---|---|
-| `/login` | Entrar | Bloqueada para usuários já autenticados (redireciona ao painel) |
-| `/register` | Criar conta | Idem; após cadastro vai para `/check-email` |
-| `/verify-email` | Confirmação de e-mail | Recebe `?token=`; consome o token com ação explícita do usuário |
-| `/check-email` | Verifique seu e-mail | Recebe `?email=`; botão de reenvio com cooldown de 60 s |
-| `/forgot-password` | Recuperação de senha | Resposta sempre genérica (não revela se o e-mail existe) |
-| `/reset-password` | Redefinir senha | Recebe `?token=`; não autentica após redefinir |
-
-### Privadas (exigem autenticação)
-
-| Rota | Página | Observações |
-|---|---|---|
-| `/dashboard` | Painel | Placeholder provisório com logout; currículos virão em etapas futuras |
-
-`/` redireciona para `/dashboard` (que, para convidados, cai no login).
-Qualquer rota inexistente também redireciona ao painel.
-
-## Estrutura de diretórios
+## Source layout
 
 ```text
 src/
-├── assets/
-│   └── main.css                  # Tailwind v4 + design tokens Warm Peach
-├── components/
-│   ├── auth/
-│   │   ├── AuthLayout.vue        # layout compartilhado das páginas de auth
-│   │   └── PasswordRequirements.vue
-│   └── ui/
-│       ├── AppButton.vue         # botão (variants, loading, disabled)
-│       ├── AppInput.vue          # campo com label, erro e hint
-│       ├── PasswordInput.vue     # campo de senha com mostrar/ocultar
-│       └── FormAlert.vue         # feedback de sucesso/erro (role alert/status)
-├── composables/
-│   └── useResendCooldown.ts      # intervalo mínimo entre reenvios
-├── lib/
-│   ├── api/
-│   │   ├── client.ts             # cliente HTTP centralizado (único ponto de fetch)
-│   │   └── auth.ts               # endpoints de autenticação + tipos
-│   ├── redirect.ts               # validação de redirect interno (anti open redirect)
-│   └── validation.ts             # validações puras e reutilizáveis
-├── router/
-│   ├── index.ts                  # criação do router
-│   ├── routes.ts                 # tabela de rotas
-│   └── guards.ts                 # guards de autenticação + meta tipadas
-├── stores/
-│   └── auth.ts                   # estado de sessão (Pinia)
-├── views/
-│   ├── DashboardView.vue
-│   └── auth/                     # LoginView, RegisterView, VerifyEmailView,
-│                                 # CheckEmailView, ForgotPasswordView, ResetPasswordView
-├── App.vue
-└── main.ts
+  assets/main.css       Theme tokens and base styles
+  components/auth/      Shared auth layout, illustrations, password requirements
+  components/ui/        Buttons, inputs, password fields, alerts
+  composables/          Resend cooldown
+  lib/api/client.ts     Fetch, cookies, CSRF, timeouts, error handling
+  lib/api/auth.ts       Auth endpoints and response types
+  lib/validation.ts     Form validation
+  lib/redirect.ts       Internal redirect checks
+  router/               Routes and navigation guards
+  stores/auth.ts        Session state
+  views/auth/           Auth screens
+  views/DashboardView.vue
 ```
 
-Os testes ficam em `src/**/__tests__/*.spec.ts`, ao lado do código que testam.
+Keep HTTP calls in `client.ts`, endpoint functions in `auth.ts`, and validation
+rules in `validation.ts`. Views handle form state and navigation.
 
-## Como funciona a autenticação
+## Visual style
 
-1. **Sessão por cookie HTTP-only** — o frontend nunca vê nem armazena tokens.
-   Todas as requisições usam `credentials: 'include'` (ver `src/lib/api/client.ts`).
-2. **Inicialização da sessão** — na primeira navegação, o guard de rotas chama
-   `GET /api/v1/auth/me` uma única vez (deduplicado). Nenhum dado local é
-   tratado como prova de autenticação.
-3. **Login** — `POST /api/v1/auth/login` com e-mail/senha; em caso de sucesso o
-   usuário vai para `/dashboard` ou para a rota privada que tentou acessar
-   (via `?redirect=`, validado como caminho interno).
-4. **Cadastro** — `POST /api/v1/auth/register` **não autentica**: o usuário vai
-   para `/check-email` até confirmar o e-mail.
-5. **Confirmação de e-mail** — o link traz `?token=`; a página exibe um botão e
-   só então chama `POST /api/v1/auth/verify-email`. Tokens nunca vão para
-   localStorage nem aparecem em logs.
-6. **Recuperação de senha** — `POST /api/v1/auth/forgot-password` responde
-   sempre com a mesma mensagem genérica, exista a conta ou não.
-7. **Redefinição de senha** — `POST /api/v1/auth/reset-password` com token e
-   nova senha; **não** autentica automaticamente.
-8. **Logout** — `POST /api/v1/auth/logout` e limpeza do estado local (mesmo que
-   a requisição falhe).
+The Warm Peach theme uses a cream background, white surfaces, dark text, and peach
+buttons. Auth screens share a centered card with fine-line illustrations on larger
+screens. Typography uses Inter, with system fonts as a fallback.
 
-## Integração com o backend Go
+Colors are defined in [src/assets/main.css](src/assets/main.css). Use the existing
+Tailwind tokens, such as `bg-background`, `bg-primary`, and `text-text-secondary`,
+instead of adding hex values to components. Green is reserved for success feedback.
 
-### Status da integração
+## Deployment
 
-Os endpoints de autenticação estão **implementados no backend** e o frontend
-está integrado aos contratos reais (ver `internal/http/handlers/auth.go`).
+Set `VITE_API_URL` to the deployed API origin before building. Vite embeds this value
+at build time. Upload `dist/` to a static host and configure an SPA fallback to
+`index.html` so direct links to auth pages work.
 
-| Método | Endpoint | Contrato (resumo) |
-|---|---|---|
-| POST | `/api/v1/auth/register` | `201 {user, verification_email_sent}` |
-| POST | `/api/v1/auth/login` | `200 {user}` + cookie de sessão HTTP-only |
-| POST | `/api/v1/auth/logout` | `204` (idempotente, revoga a sessão) |
-| GET | `/api/v1/auth/me` | `200 {user}` / `401 authentication_required` |
-| POST | `/api/v1/auth/verify-email` | `200 {message}`; erros `invalid_token`/`expired_token`/`token_used` |
-| POST | `/api/v1/auth/resend-verification` | `202 {message}` (sempre genérico, anti-enumeração) |
-| POST | `/api/v1/auth/forgot-password` | `202 {message}` (sempre genérico, anti-enumeração) |
-| POST | `/api/v1/auth/reset-password` | `200 {message}`; body `{token, new_password}` |
-| GET | `/api/v1/auth/csrf` | `200 {csrf_token}` (usado automaticamente pelo client) |
+The backend must allow the frontend origin, credentials, and the `Content-Type`
+and `X-CSRF-Token` request headers. Its CORS middleware must handle preflight OPTIONS
+requests. Check this in a browser: a successful curl POST alone does not verify CORS.
 
-### Contratos reais (implementados em `src/lib/api/auth.ts`)
+HTTPS, cookie settings, and response headers need to be configured for the deployed
+environment. Validate the browser flows before publishing; local builds do not
+verify the hosting configuration.
 
-```jsonc
-// POST /register, POST /login
-{ "email": "ana@example.com", "password": "senha-forte-123" }
-// POST /register também envia
-{ "name": "Ana Santos" }
-
-// POST /verify-email
-{ "token": "<token>" }
-
-// POST /reset-password
-{ "token": "<token>", "new_password": "nova-senha-456" }
-
-// POST /resend-verification, POST /forgot-password
-{ "email": "ana@example.com" }
-
-// GET /me e POST /login retornam (desembrulhado pelo client)
-{ "user": { "id": "...", "name": "Ana Santos", "email": "ana@example.com", "email_verified": false } }
-
-// POST /register
-{ "user": { ... }, "verification_email_sent": true }
-```
-
-O formato de **erro** é o padrão do backend e o client o interpreta sempre por
-`code` (nunca pelo texto):
-
-```json
-{ "error": { "code": "invalid_credentials", "message": "E-mail ou senha inválidos.", "request_id": "..." } }
-```
-
-Códigos tratados: `validation_failed`, `invalid_token`, `expired_token`,
-`token_used`, `authentication_required`, `invalid_credentials`,
-`email_not_verified`, `csrf_failed`, `email_already_registered`,
-`rate_limited` (com header `Retry-After`) e `internal_error`.
-
-### Rate limits do backend (respeitados no frontend)
-
-| Operação | Limite |
-|---|---|
-| Cadastro | 10/h por IP |
-| Login | 10 tentativas/15 min por e-mail+IP |
-| Reenvio de confirmação | 3/h por e-mail |
-| Recuperação de senha | 5/15 min por e-mail+IP |
-
-Respostas `429` trazem `Retry-After`; as views exibem
-"Muitas tentativas. Tente novamente em Xs/min/h.".
-
-### Regras de senha
-
-O frontend espelha a validação do backend (`internal/auth/validation.go`):
-**8 a 256 caracteres**, sem exigência de maiúscula, minúscula ou número.
-E-mails são normalizados para minúsculas (trim + lowercase) antes do envio,
-como o backend faz.
-
-### CSRF (obrigatório em toda mutação)
-
-O backend usa double-submit (cookie `applya_csrf` + header `X-CSRF-Token`) e
-validação de origem. O client (`src/lib/api/client.ts`) cuida disso sozinho:
-
-1. antes de cada POST/PUT/PATCH/DELETE, obtém o token via `GET /api/v1/auth/csrf`
-   (com cache; chamadas concorrentes compartilham a mesma requisição);
-2. envia o token no header `X-CSRF-Token`;
-3. se a resposta for `403 csrf_failed` (o backend rotaciona o token no login),
-   invalida o cache, busca um token novo e repete a mutação **uma única vez**.
-
-Nenhuma view precisa se preocupar com CSRF.
-
-Como o cookie tem `Path=/api`, ele não fica acessível por `document.cookie`
-nas páginas de auth. O cliente usa o token JSON de `/api/v1/auth/csrf`;
-o navegador armazena e envia o cookie com `credentials: 'include'`.
-
-A store também expõe `fetchMe()` para revalidar a sessão: `401` com código
-`authentication_required` representa uma sessão deslogada; outros erros são
-propagados ao chamador. `initialize()` mantém a inicialização deduplicada usada
-pelos guards.
-
-### Configurações necessárias de CORS e cookies
-
-Como frontend e backend ficam em domínios diferentes:
-
-- **CORS**: o backend já usa `CORS_ALLOWED_ORIGINS` com lista explícita e
-  `AllowCredentials: true` (`*` é rejeitado). Inclua a origem do frontend
-  (ex.: `http://localhost:5173` em dev, a URL do Render em produção).
-- **Cookies**: os cookies `applya_session` (HTTP-only) e `applya_csrf` têm
-  `Path=/api` e são configurados pelo backend. Em dev local
-  (`localhost:5173` → `localhost:8080`) é same-site: `SameSite=Lax` funciona.
-  Em produção cross-site o backend usa `COOKIE_SAMESITE=none` + `Secure`
-  (exige HTTPS) — no frontend nada muda, só o requisito de HTTPS.
-- **CSRF**: implementado ponta a ponta (double-submit + origem) — o client
-  envia o header automaticamente; nada a configurar nas views.
-- **Timeout**: cada requisição do frontend aborta após 10 s.
-- **Referrer**: o app envia `<meta name="referrer" content="no-referrer">`
-  (tokens de confirmação trafegam por query string) — reforçado pelo header
-  `Referrer-Policy` na hospedagem (abaixo).
-
-## Design tokens (Warm Peach)
-
-Definidos em `src/assets/main.css` no bloco `@theme` do Tailwind v4. Use sempre
-as utilities derivadas (`bg-background`, `text-text-secondary`, `border-border`,
-`bg-primary`, `text-error`…), nunca valores hexadecimais soltos nos componentes.
-
-| Token | Cor |
-|---|---|
-| `background` | `#F7F5EF` |
-| `surface` | `#FFFFFF` |
-| `primary` | `#FFCA91` |
-| `primary-hover` | `#F4B66F` |
-| `text-primary` | `#1E1E1E` |
-| `text-secondary` | `#77736D` |
-| `border` | `#E6E1D8` |
-| `error` | `#C2413B` |
-| `success` | `#3F7A4F` (apenas feedback de sucesso) |
-
-Fonte: **Inter** (Google Fonts, com fallback para fontes do sistema).
-
-## Segurança
-
-- Sem tokens de sessão no `localStorage`/`sessionStorage`; o estado local é
-  descartado no logout e quando o backend responde 401 (sessão expirada).
-- Resultados de requisições em voo são invalidados após logout (sem
-  "ressurreição" de sessão antiga).
-- Senhas e tokens nunca são registrados em log.
-- `?redirect=` do login só aceita caminhos internos (anti open redirect).
-- Tokens de confirmação/redefinição são removidos da URL após o uso.
-- Mensagens de erro da API são as do backend (seguras por contrato) apenas
-  para 4xx; **erros 5xx sempre exibem mensagem genérica**, mesmo que o corpo
-  traga uma mensagem (defesa contra vazamento interno).
-- Nenhuma credencial real no código ou em arquivos versionados (apenas
-  `.env.example` demonstrativo).
-- Sem `v-html`/injeção de HTML: todo conteúdo dinâmico usa interpolação Vue.
-
-### Cabeçalhos de segurança recomendados (configurar na hospedagem)
-
-Estes cabeçalhos dependem do provedor (Render) e **não são configuráveis pelo
-Vite**. Recomendado para o serviço estático do frontend:
-
-| Header | Valor sugerido | Observação |
-|---|---|---|
-| `Content-Security-Policy` | `default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://<api>.onrender.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'` | Ajuste `connect-src` para a origem real da API. Valide o app após aplicar |
-| `Referrer-Policy` | `no-referrer` | Protege tokens trafegados por query string |
-| `X-Content-Type-Options` | `nosniff` | O backend já envia nas respostas JSON |
-| `X-Frame-Options` | `DENY` | Reforço contra clickjacking |
-| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` | Somente com HTTPS (Render já serve HTTPS) |
-| `Cache-Control` (HTML do SPA) | `private, no-store` | Evita cache de páginas autenticadas |
-
-### Auditoria de dependências
+Run dependency and secret checks before a release:
 
 ```sh
-npm audit            # vulnerabilidades
-npm audit signatures # assinaturas/attestations do registry
+npm audit
+npm audit --omit=dev
+gitleaks detect --source . --no-git --redact
 ```
-
-Status da auditoria (ver `SECURITY.md`): `npm audit --omit=dev` não encontra
-vulnerabilidades no bundle de produção. Restam avisos **moderate apenas em
-ferramentas de desenvolvimento** (cadeia minimatch/eslint/@vue/test-utils),
-sem correção compatível atual; não afetam o código publicado.
-
-Para varredura de segredos antes de publicar, use
-[Gitleaks](https://github.com/gitleaks/gitleaks):
-
-```sh
-gitleaks detect --source . --no-git   # ou sem --no-git para histórico completo
-```
-
-## Decisões arquiteturais
-
-- **Fetch nativo** em um único cliente (`src/lib/api/client.ts`) — sem axios;
-  a superfície é pequena e `fetch` cobre tudo (timeout via `AbortController`).
-- **Guard único com inicialização de sessão** — o `router.beforeEach` aguarda a
-  verificação de `/me` antes de decidir, evitando flash de tela errada e
-  requisições duplicadas.
-- **Componentes próprios em vez de shadcn-vue** — a biblioteca não estava
-  instalada e o conjunto necessário é pequeno (Button/Input/Alert); os
-  componentes em `src/components/ui/` seguem os mesmos princípios de acessibilidade.
-- **Validações puras em `src/lib/validation.ts`** — testáveis isoladamente,
-  compartilhadas entre views e indicador de requisitos de senha.
-- **Verificação de e-mail por ação explícita** — o token só é consumido quando
-  o usuário clica no botão, evitando consumo acidental por scanners de link.
-
-Ver também [`AGENTS.md`](AGENTS.md) para convenções do repositório.
