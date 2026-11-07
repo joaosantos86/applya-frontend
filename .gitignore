@@ -10,9 +10,11 @@ coverage
 *.lcov
 
 # Environment files (local only; keep the example)
+# Only `.env.example` is versioned. Everything else (.env, .env.local,
+# .env.development, .env.production, …) may contain environment-specific
+# configuration and must never be committed.
 .env
-.env.local
-.env.*.local
+.env.*
 *.local
 !.env.example
 
@@ -66,3 +68,6 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+AGENTS.md
+SECURITY.md
