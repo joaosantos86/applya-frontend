@@ -14,13 +14,17 @@ import type { RouteRecordRaw } from 'vue-router'
 export const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    redirect: { name: 'dashboard' },
+    redirect: { name: 'workspace' },
+  },
+  {
+    path: '/workspace',
+    name: 'workspace',
+    component: () => import('@/views/WorkspaceView.vue'),
+    meta: { requiresAuth: true, title: 'Currículos' },
   },
   {
     path: '/dashboard',
-    name: 'dashboard',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, title: 'Painel' },
+    redirect: { name: 'workspace' },
   },
   {
     path: '/login',
@@ -60,6 +64,6 @@ export const routes: RouteRecordRaw[] = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: { name: 'dashboard' },
+    redirect: { name: 'workspace' },
   },
 ]

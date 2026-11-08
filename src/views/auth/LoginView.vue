@@ -83,7 +83,7 @@ async function onSubmit() {
     await auth.login({ email: normalizeEmailInput(form.email), password: form.password })
 
     const redirect = route.query.redirect
-    await router.push(isInternalPath(redirect) ? redirect : { name: 'dashboard' })
+    await router.push(isInternalPath(redirect) ? redirect : { name: 'workspace' })
   } catch (error) {
     if (error instanceof ApiError) {
       if (error.code === 'invalid_credentials' || error.status === 401) {

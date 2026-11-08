@@ -22,7 +22,7 @@ const DEFAULT_TITLE = 'Applya — Currículos feitos para você'
  * - aguarda a verificação inicial da sessão (uma única chamada a `/me`);
  * - redireciona convidados para `/login` preservando a rota pedida em
  *   `?redirect=` (validada depois pelo login via `isInternalPath`);
- * - redireciona autenticados para `/dashboard` ao visitar login/cadastro;
+ * - redireciona autenticados para `/workspace` ao visitar login/cadastro;
  * - registra o handler de 401 do cliente HTTP: se a sessão expirar com o
  *   usuário em uma rota privada, o estado local é descartado e ele volta ao
  *   login. Em rotas públicas (ex.: erro de credenciais no login) o handler
@@ -51,7 +51,7 @@ export function registerGuards(router: Router): void {
     }
 
     if (to.meta.guestOnly && auth.isAuthenticated) {
-      return { name: 'dashboard' }
+      return { name: 'workspace' }
     }
   })
 

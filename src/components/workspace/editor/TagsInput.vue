@@ -1,0 +1,97 @@
+<script setup lang="ts">
+import { ref, useId } from 'vue'
+import { Plus, X } from '@lucide/vue'
+
+withDefaults(
+  defineProps<{
+    label: string
+    placeholder?: string
+    hint?: string
+    addLabel?: string
+  }>(),
+  {
+    placeholder: 'Digite e pressione Enter',
+    hint: undefined,
+    addLabel: 'Adicionar',
+  },
+)
+
+const model = defineModel<string[]>({ required: true })
+const emit = defineEmits<{ change: [] }>()
+
+const fallbackId = useId()
+const inputId = `tags-${fallbackId}`
+const hintId = `${inputId}-hint`
+
+const draft = ref('')
+
+function addTag() {
+  const value = draft.value.trim()
+  if (!value) return
+
+  const exists = model.value.some((tag) => tag.toLowerCase() === value.toLowerCase())
+  if (!exists) {
+    model.value = [...model.value, value]
+    emit('change')
+  }
+
+  draft.value = ''
+}
+
+function removeTag(tag: string) {
+  model.value = model.value.filter((item) => item !== tag)
+  emit('change')
+}
+</script>
+
+<template>
+  <div>
+    <label :for="inputId" class="mb-1.5 block text-sm font-medium text-text-primary">
+      {{ label }}
+    </label>
+
+    <div class="flex gap-2">
+      <input
+        :id="inputId"
+        v-model="draft"
+        type="text"
+        :placeholder="placeholder"
+        :aria-describedby="hint ? hintId : undefined"
+        class="h-10 min-w-0 flex-1 rounded-lg border border-border bg-surface px-3 text-sm text-text-primary shadow-sm transition-colors duration-150 placeholder:text-text-secondary/70 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-primary motion-reduce:transition-none"
+        @keydown.enter.prevent="addTag"
+        @input.stop
+      />
+
+      <button
+        type="button"
+        class="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-sm font-medium text-text-primary transition-colors hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+        @click="addTag"
+      >
+        <Plus class="size-4" aria-hidden="true" />
+        {{ addLabel }}
+      </button>
+    </div>
+
+    <p v-if="hint" :id="hintId" class="mt-1.5 text-sm text-text-secondary">{{ hint }}</p>
+
+    <ul v-if="model.length" class="mt-3 flex flex-wrap gap-2" :aria-label="`${label} adicionadas`">
+      <li
+        v-for="tag in model"
+        :key="tag"
+        class="inline-flex items-center gap-1.5 rounded-full border border-border bg-primary/20 py-1 pr-1 pl-3 text-sm text-text-primary"
+      >
+        {{ tag }}
+        <button
+          type="button"
+          class="rounded-full p-0.5 text-text-secondary transition-colors hover:bg-primary/30 hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          :aria-label="`Remover ${tag}`"
+          @click="removeTag(tag)"
+        >
+          <X class="size-3.5" aria-hidden="true" />
+        </button>
+      </li>
+    </ul>
+
+    <p v-else class="mt-3 text-sm text-text-secondary">Nenhum item adicionado ainda.</p>
+  </div>
+</template>
