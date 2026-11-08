@@ -5,8 +5,10 @@ This repository contains the Vue frontend; the API lives in
 [applya-backend](https://github.com/joaosantos86/applya-backend).
 
 The current app covers registration, sign-in, email verification, password recovery,
-and session management. The dashboard is a placeholder with a sign-out action.
-Resume editing and export are not implemented yet. Interface copy is in Brazilian Portuguese.
+session management, and a local-first resume workspace. The workspace can edit a base
+resume, create independent versions, preview changes live, and persist the demo data in
+localStorage. Resume export and real API persistence are not implemented yet. Interface
+copy is in Brazilian Portuguese.
 
 ## Stack
 
@@ -59,8 +61,8 @@ The expected response is `{"status":"ok"}`.
 | `npm run build` | Check types and build into `dist/` |
 | `npm run preview` | Serve the production build locally |
 
-There are currently no test files. Vitest, Vue Test Utils, and happy-dom remain
-configured, but `npm test` exits with an error because no tests are found.
+Vitest, Vue Test Utils, and happy-dom are configured. `npm test` runs the store,
+storage, route, and preview tests under `src/**/__tests__/`.
 
 ## Authentication
 
@@ -70,7 +72,7 @@ Session credentials are not stored in localStorage or sessionStorage.
 
 On the first navigation, the route guard checks `/api/v1/auth/me`. Protected pages
 redirect guests to sign-in. After signing in, users return to the requested internal
-path or the dashboard. Registration requires email verification before sign-in.
+path or the workspace. Registration requires email verification before sign-in.
 Password reset does not sign the user in automatically.
 
 The HTTP client obtains a CSRF token from `/api/v1/auth/csrf` and sends it as
@@ -99,10 +101,11 @@ accepts an email in the query string and lets users enter or correct it.
 | `/check-email` | Request another verification email |
 | `/forgot-password` | Request a password reset |
 | `/reset-password` | Set a new password |
-| `/dashboard` | Protected placeholder page |
+| `/workspace` | Protected resume workspace |
+| `/dashboard` | Legacy redirect to `/workspace` |
 
 Signed-in users are redirected away from `/login` and `/register`. `/` and unknown
-paths redirect to `/dashboard`, where the authentication guard applies.
+paths redirect to `/workspace`, where the authentication guard applies.
 
 ## Source layout
 
@@ -110,16 +113,19 @@ paths redirect to `/dashboard`, where the authentication guard applies.
 src/
   assets/main.css       Theme tokens and base styles
   components/auth/      Shared auth layout, illustrations, password requirements
-  components/ui/        Buttons, inputs, password fields, alerts
-  composables/          Resend cooldown
+  components/ui/        Buttons, inputs, textareas, selects, modals, alerts, toasts
+  components/workspace/ Sidebar, editor sections, dialogs, and A4 preview
+  composables/          Resend cooldown and workspace toasts
   lib/api/client.ts     Fetch, cookies, CSRF, timeouts, error handling
   lib/api/auth.ts       Auth endpoints and response types
+  lib/resume/           Resume types, mock data, factories, storage, validation
   lib/validation.ts     Form validation
   lib/redirect.ts       Internal redirect checks
   router/               Routes and navigation guards
   stores/auth.ts        Session state
+  stores/resumes.ts     Resume workspace state and local persistence
   views/auth/           Auth screens
-  views/DashboardView.vue
+  views/WorkspaceView.vue
 ```
 
 Keep HTTP calls in `client.ts`, endpoint functions in `auth.ts`, and validation
