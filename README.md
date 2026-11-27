@@ -39,6 +39,10 @@ The app is deployed on Fabroku with buildpacks: `.buildpacks` builds it with Nod
 
 Set `VITE_API_URL` to the public API origin in the app environment before building. Vite embeds it at build time, so changing it needs a new build. On the backend, add the frontend's HTTPS origin to `CORS_ALLOWED_ORIGINS` and `FRONTEND_URL`. If the frontend and API are on different sites, set `COOKIE_SAMESITE=none`.
 
+## Disclaimer
+
+Applya is a personal, educational project. It is not a commercial product and is not affiliated with any other product or company named Applya.
+
 ## License
 
 [MIT](LICENSE)
@@ -83,6 +87,10 @@ Use `localhost` nos dois serviços para que o navegador envie o cookie de sessã
 O app é publicado no Fabroku com buildpacks: o `.buildpacks` faz o build com Node.js e serve o `dist/` com nginx. O `static.json` redireciona para o `index.html`, então links diretos para as rotas do app funcionam.
 
 Defina `VITE_API_URL` com a origem pública da API no ambiente do app antes do build. O Vite embute esse valor no build, então alterá-lo exige um novo build. No backend, inclua a origem HTTPS do frontend em `CORS_ALLOWED_ORIGINS` e `FRONTEND_URL`. Se o frontend e a API estiverem em sites diferentes, defina `COOKIE_SAMESITE=none`.
+
+### Aviso
+
+O Applya é um projeto pessoal e educacional. Não é um produto comercial e não tem relação com outros produtos ou empresas chamados Applya.
 
 ### Licença
 
