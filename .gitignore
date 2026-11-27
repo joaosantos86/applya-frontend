@@ -63,11 +63,5 @@ id_ed25519*
 /cypress/videos/
 /cypress/screenshots/
 
-# Vitest
-__screenshots__/
-
 # Vite
 *.timestamp-*-*.mjs
-
-AGENTS.md
-SECURITY.md

@@ -1,4 +1,3 @@
-/// <reference types="vitest/config" />
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
@@ -25,10 +24,5 @@ export default defineConfig({
     // completo e facilitam engenharia reversa. Habilite apenas se houver
     // ferramenta de monitoramento de erros que justifique.
     sourcemap: false,
-  },
-  test: {
-    environment: 'happy-dom',
-    include: ['src/**/__tests__/*.spec.ts'],
-    restoreMocks: true,
   },
 })
