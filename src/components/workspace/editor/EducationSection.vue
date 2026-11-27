@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { GraduationCap, Plus } from '@lucide/vue'
+import { Plus } from '@lucide/vue'
 
 import AppButton from '@/components/ui/AppButton.vue'
 import AppInput from '@/components/ui/AppInput.vue'
@@ -18,7 +18,6 @@ const { selectedResume: resume } = storeToRefs(store)
     id="resume-section-education"
     title="Formação acadêmica"
     description="Cursos, graduações e formações técnicas."
-    :icon="GraduationCap"
     :badge="resume.education.length"
   >
     <div class="space-y-4">
@@ -46,7 +45,10 @@ const { selectedResume: resume } = storeToRefs(store)
             label="Grau acadêmico"
             placeholder="Ex.: Bacharelado, Técnico"
           />
-          <AppInput v-model="education.period" label="Período" placeholder="2015 — 2019" />
+          <div class="grid grid-cols-2 gap-4">
+            <AppInput v-model="education.startDate" label="Início" type="month" />
+            <AppInput v-model="education.endDate" label="Término" type="month" />
+          </div>
         </div>
 
         <div class="mt-4">
@@ -63,7 +65,7 @@ const { selectedResume: resume } = storeToRefs(store)
         Nenhuma formação adicionada.
       </p>
 
-      <AppButton variant="outline" @click="store.addEducation()">
+      <AppButton variant="outline" size="sm" @click="store.addEducation()">
         <Plus class="size-4" aria-hidden="true" />
         Adicionar formação
       </AppButton>

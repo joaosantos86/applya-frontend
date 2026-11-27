@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { Briefcase, Plus } from '@lucide/vue'
+import { Plus } from '@lucide/vue'
 
 import AppButton from '@/components/ui/AppButton.vue'
 import AppInput from '@/components/ui/AppInput.vue'
@@ -18,7 +18,6 @@ const { selectedResume: resume } = storeToRefs(store)
     id="resume-section-experience"
     title="Experiências profissionais"
     description="Da mais recente para a mais antiga."
-    :icon="Briefcase"
     :badge="resume.experiences.length"
   >
     <div class="space-y-4">
@@ -33,13 +32,15 @@ const { selectedResume: resume } = storeToRefs(store)
         <div class="grid gap-4 sm:grid-cols-2">
           <AppInput v-model="experience.company" label="Empresa" placeholder="Nome da empresa" />
           <AppInput v-model="experience.role" label="Cargo" placeholder="Seu cargo" />
-          <AppInput
-            v-model="experience.location"
-            label="Localização"
-            placeholder="São Paulo, SP ou Remoto"
-          />
+          <div class="sm:col-span-2">
+            <AppInput
+              v-model="experience.location"
+              label="Localização"
+              placeholder="São Paulo, SP ou Remoto"
+            />
+          </div>
 
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-2 gap-4 sm:col-span-2">
             <AppInput v-model="experience.startDate" label="Início" type="month" />
             <AppInput
               v-model="experience.endDate"
@@ -49,7 +50,7 @@ const { selectedResume: resume } = storeToRefs(store)
             />
           </div>
 
-          <label class="flex items-center gap-2 self-end pb-2.5 text-sm text-text-primary">
+          <label class="flex items-center gap-2 text-sm text-text-primary sm:col-span-2">
             <input
               v-model="experience.current"
               type="checkbox"
@@ -74,7 +75,7 @@ const { selectedResume: resume } = storeToRefs(store)
         Nenhuma experiência adicionada. Comece pela mais recente.
       </p>
 
-      <AppButton variant="outline" @click="store.addExperience()">
+      <AppButton variant="outline" size="sm" @click="store.addExperience()">
         <Plus class="size-4" aria-hidden="true" />
         Adicionar experiência
       </AppButton>

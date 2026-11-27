@@ -10,9 +10,12 @@ const props = withDefaults(
     open: boolean
     mode: 'create' | 'rename'
     initialName?: string
+    /** Requisição em andamento: desabilita o envio. */
+    submitting?: boolean
   }>(),
   {
     initialName: '',
+    submitting: false,
   },
 )
 
@@ -57,7 +60,7 @@ function onSubmit() {
     :title="mode === 'create' ? 'Nova versão' : 'Renomear versão'"
     :description="
       mode === 'create'
-        ? 'A versão começa com uma cópia dos dados atuais do Currículo-base e fica independente.'
+        ? 'A versão começa com uma cópia do currículo-base salvo e fica independente.'
         : 'O novo nome aparece na sidebar e no topo do editor.'
     "
     close-label="Fechar diálogo"
@@ -75,7 +78,7 @@ function onSubmit() {
 
       <div class="flex justify-end gap-2">
         <AppButton variant="ghost" @click="emit('close')">Cancelar</AppButton>
-        <AppButton type="submit">
+        <AppButton type="submit" :loading="submitting">
           {{ mode === 'create' ? 'Criar versão' : 'Salvar nome' }}
         </AppButton>
       </div>

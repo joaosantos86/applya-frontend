@@ -1,17 +1,58 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { User } from '@lucide/vue'
 
 import AppInput from '@/components/ui/AppInput.vue'
 import SectionCard from './SectionCard.vue'
-import { validatePersonal } from '@/lib/resume/validation'
+import {
+  GITHUB_PROFILE_PREFIX,
+  githubProfileUrl,
+  githubUserFromProfile,
+} from '@/lib/resume/githubImport'
+import { validatePersonal, type PersonalErrors } from '@/lib/resume/validation'
 import { useResumesStore } from '@/stores/resumes'
 
 const store = useResumesStore()
 const { selectedResume: resume } = storeToRefs(store)
 
-const errors = computed(() => validatePersonal(resume.value.personal))
+const validation = computed(() => validatePersonal(resume.value.personal))
+
+/**
+ * Campos que o usuário já visitou. O erro só aparece depois que ele sai do
+ * campo; antes disso, um campo vazio não é tratado como erro.
+ */
+const visited = reactive<Partial<Record<keyof PersonalErrors, boolean>>>({})
+
+function markVisited(field: keyof PersonalErrors): void {
+  visited[field] = true
+}
+
+const errors = computed<PersonalErrors>(() => {
+  const shown: PersonalErrors = {}
+  for (const field of Object.keys(validation.value) as (keyof PersonalErrors)[]) {
+    if (visited[field]) shown[field] = validation.value[field]
+  }
+  return shown
+})
+
+// Outro currículo aberto: começa sem erros exibidos.
+watch(
+  () => resume.value.id,
+  () => {
+    for (const field of Object.keys(visited) as (keyof PersonalErrors)[]) delete visited[field]
+  },
+)
+
+/**
+ * O endereço do GitHub é fixo: o campo mostra e edita só o usuário, e o
+ * currículo guarda a URL completa ("https://github.com/<usuário>").
+ */
+const githubUser = computed({
+  get: () => githubUserFromProfile(resume.value.personal.github),
+  set: (value: string) => {
+    resume.value.personal.github = githubProfileUrl(value)
+  },
+})
 </script>
 
 <template>
@@ -19,7 +60,6 @@ const errors = computed(() => validatePersonal(resume.value.personal))
     id="resume-section-personal"
     title="Dados pessoais"
     description="Como você quer ser apresentado no currículo."
-    :icon="User"
   >
     <div class="grid gap-4 sm:grid-cols-2">
       <AppInput
@@ -28,6 +68,7 @@ const errors = computed(() => validatePersonal(resume.value.personal))
         autocomplete="name"
         placeholder="Seu nome"
         :error="errors.fullName"
+        @blur="markVisited('fullName')"
         required
       />
       <AppInput
@@ -42,6 +83,7 @@ const errors = computed(() => validatePersonal(resume.value.personal))
         autocomplete="email"
         placeholder="voce@exemplo.com"
         :error="errors.email"
+        @blur="markVisited('email')"
       />
       <AppInput
         v-model="resume.personal.phone"
@@ -50,6 +92,7 @@ const errors = computed(() => validatePersonal(resume.value.personal))
         autocomplete="tel"
         placeholder="(11) 99999-9999"
         :error="errors.phone"
+        @blur="markVisited('phone')"
       />
       <AppInput
         v-model="resume.personal.location"
@@ -62,11 +105,19 @@ const errors = computed(() => validatePersonal(resume.value.personal))
         label="LinkedIn"
         placeholder="linkedin.com/in/seu-perfil"
       />
-      <AppInput
-        v-model="resume.personal.github"
-        label="GitHub"
-        placeholder="github.com/seu-usuario"
-      />
+      <!-- Linha inteira: o prefixo fixo ocupa boa parte da largura. -->
+      <div class="sm:col-span-2">
+        <AppInput
+          v-model="githubUser"
+          label="GitHub"
+          :prefix="GITHUB_PROFILE_PREFIX"
+          placeholder="seu-usuario"
+          autocomplete="off"
+          spellcheck="false"
+          :error="errors.github"
+          @blur="markVisited('github')"
+        />
+      </div>
     </div>
   </SectionCard>
 </template>

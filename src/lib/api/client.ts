@@ -191,6 +191,11 @@ interface RequestOptions extends Omit<RequestInit, 'body'> {
   expectedStatus?: number
   /** Corpo enviado como JSON (convertido aqui). */
   body?: unknown
+  /**
+   * Formato da resposta de sucesso: `json` (padrão) ou `blob` para arquivos
+   * (ex.: PDF). Erros continuam sendo lidos como JSON do backend.
+   */
+  responseType?: 'json' | 'blob'
 }
 
 /**
@@ -203,7 +208,7 @@ interface RequestOptions extends Omit<RequestInit, 'body'> {
  * @throws {NetworkError} em falha de rede ou timeout.
  */
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { body, headers, expectedStatus, ...rest } = options
+  const { body, headers, expectedStatus, responseType = 'json', ...rest } = options
   const method = (options.method ?? 'GET').toUpperCase()
   const needsCsrf = MUTATION_METHODS.has(method)
 
@@ -237,6 +242,10 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 
       if (response.status === 204) {
         return undefined as T
+      }
+
+      if (response.ok && responseType === 'blob') {
+        return (await response.blob()) as T
       }
 
       const payload = await readPayload(response)

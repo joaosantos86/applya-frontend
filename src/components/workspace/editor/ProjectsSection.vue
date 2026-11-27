@@ -1,14 +1,18 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
-import { FolderGit2, Plus } from '@lucide/vue'
+import { Import, Plus } from '@lucide/vue'
 
 import AppButton from '@/components/ui/AppButton.vue'
+import GithubImportDialog from '../GithubImportDialog.vue'
 import SectionCard from './SectionCard.vue'
 import ProjectItemEditor from './ProjectItemEditor.vue'
 import { useResumesStore } from '@/stores/resumes'
 
 const store = useResumesStore()
 const { selectedResume: resume } = storeToRefs(store)
+
+const importOpen = ref(false)
 </script>
 
 <template>
@@ -16,7 +20,6 @@ const { selectedResume: resume } = storeToRefs(store)
     id="resume-section-projects"
     title="Projetos"
     description="Trabalhos que mostram como você resolve problemas."
-    :icon="FolderGit2"
     :badge="resume.projects.length"
   >
     <div class="space-y-4">
@@ -26,10 +29,18 @@ const { selectedResume: resume } = storeToRefs(store)
         Nenhum projeto adicionado.
       </p>
 
-      <AppButton variant="outline" @click="store.addProject()">
-        <Plus class="size-4" aria-hidden="true" />
-        Adicionar projeto
-      </AppButton>
+      <div class="flex flex-wrap gap-2">
+        <AppButton variant="outline" size="sm" @click="store.addProject()">
+          <Plus class="size-4" aria-hidden="true" />
+          Adicionar projeto
+        </AppButton>
+        <AppButton variant="outline" size="sm" @click="importOpen = true">
+          <Import class="size-4" aria-hidden="true" />
+          Importar do GitHub
+        </AppButton>
+      </div>
     </div>
+
+    <GithubImportDialog :open="importOpen" @close="importOpen = false" />
   </SectionCard>
 </template>

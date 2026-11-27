@@ -1,9 +1,10 @@
 /**
- * Modelo de dados do currículo.
+ * Modelo de dados do currículo usado pelo editor.
  *
- * Essas interfaces representam o contrato local usado pelo workspace. Quando a
- * API de currículos existir, o formato pode ser mapeado para/da API sem que os
- * componentes de apresentação precisem mudar (ver `lib/resume/storage.ts`).
+ * É o formato local, pensado para os formulários. A conversão de/para o
+ * contrato da API (`snake_case`, cidade/estado separados, proficiência em
+ * inglês etc.) fica em `lib/resume/mapper.ts`; os componentes não conhecem o
+ * formato do backend.
  */
 
 /** Dados pessoais e de contato. */
@@ -12,6 +13,7 @@ export interface ResumePersonal {
   headline: string
   email: string
   phone: string
+  /** Cidade e estado em um só campo, ex.: "São Paulo, SP". */
   location: string
   linkedin: string
   github: string
@@ -36,9 +38,16 @@ export interface ResumeEducation {
   institution: string
   course: string
   degree: string
-  /** Período livre, ex.: "2015 — 2019". */
-  period: string
+  /** Formato `AAAA-MM`. */
+  startDate: string
+  /** Formato `AAAA-MM`. */
+  endDate: string
   description: string
+}
+
+export interface ResumeSkill {
+  id: string
+  name: string
 }
 
 export interface ResumeProject {
@@ -67,36 +76,29 @@ export const LANGUAGE_PROFICIENCIES = [
 
 export type LanguageProficiency = (typeof LANGUAGE_PROFICIENCIES)[number]
 
-export interface Resume {
+/** Metadados de um currículo, sem o conteúdo (lista de versões). */
+export interface ResumeSummary {
   id: string
   /** Nome exibido na sidebar. O currículo-base usa "Currículo-base". */
   name: string
   kind: 'base' | 'version'
   /** Id do currículo-base que originou a versão; `null` no próprio base. */
   baseId: string | null
+  /** Revisão no servidor; enviada no PATCH para detectar conflitos (409). */
+  revision: number
   createdAt: string
   updatedAt: string
+}
+
+/** Conteúdo editável de um currículo. */
+export interface ResumeContent {
   personal: ResumePersonal
   summary: string
   experiences: ResumeExperience[]
   education: ResumeEducation[]
-  skills: string[]
+  skills: ResumeSkill[]
   projects: ResumeProject[]
   languages: ResumeLanguage[]
 }
 
-/** Snapshot persistido no localStorage. */
-export interface ResumeWorkspaceSnapshot {
-  schemaVersion: number
-  base: Resume
-  versions: Resume[]
-  selectedId: string
-  savedAt: string
-}
-
-/** Formato usado pela camada de storage; facilita trocar por API depois. */
-export interface ResumeWorkspaceData {
-  base: Resume
-  versions: Resume[]
-  selectedId: string
-}
+export interface Resume extends ResumeSummary, ResumeContent {}
