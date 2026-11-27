@@ -51,7 +51,7 @@ async function onResend() {
     await resendVerification(normalizeEmailInput(email.value))
     feedback.value = {
       variant: 'success',
-      message: 'E-mail de confirmação reenviado! Verifique sua caixa de entrada.',
+      message: 'E-mail de confirmação reenviado. Verifique sua caixa de entrada.',
     }
     start()
   } catch (error) {
@@ -71,12 +71,14 @@ async function onResend() {
 <template>
   <AuthLayout
     title="Verifique seu e-mail"
-    description="Confira sua caixa de entrada ou solicite um novo link de confirmação."
+    description="Confira sua caixa de entrada ou solicite um novo link de confirmação"
   >
     <div class="space-y-5">
-      <div class="flex justify-center">
-        <span class="flex size-14 items-center justify-center rounded-full bg-primary/40">
-          <Mail class="size-7 text-text-primary" aria-hidden="true" />
+      <div class="flex">
+        <span
+          class="flex size-10 items-center justify-center rounded-md border border-border bg-subtle"
+        >
+          <Mail class="size-5 text-text-secondary" aria-hidden="true" />
         </span>
       </div>
 
@@ -118,6 +120,7 @@ async function onResend() {
         />
         <AppButton
           type="submit"
+          class="mt-6"
           block
           size="lg"
           :loading="sending"
@@ -129,10 +132,10 @@ async function onResend() {
         </AppButton>
       </form>
 
-      <p class="text-center text-sm text-text-secondary">
+      <p class="text-sm text-text-secondary">
         <RouterLink
           :to="{ name: 'login' }"
-          class="font-medium text-text-primary underline underline-offset-4 transition-colors duration-150 hover:opacity-75 motion-reduce:transition-none"
+          class="font-medium text-text-primary underline decoration-border-strong decoration-1 underline-offset-4 transition-colors duration-150 hover:decoration-text-primary motion-reduce:transition-none"
         >
           Voltar ao login
         </RouterLink>

@@ -16,7 +16,7 @@ withDefaults(
 <template>
   <div
     :role="variant === 'error' ? 'alert' : 'status'"
-    class="flex items-start gap-2.5 rounded-lg border p-3 text-sm"
+    class="flex items-start gap-2 rounded-md border px-3 py-2.5 text-sm"
     :class="
       variant === 'error'
         ? 'border-error/30 bg-error/5 text-error'

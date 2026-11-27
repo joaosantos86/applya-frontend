@@ -101,13 +101,13 @@ async function onSubmit() {
 </script>
 
 <template>
-  <AuthLayout title="Redefinir senha" description="Escolha uma nova senha para acessar sua conta.">
+  <AuthLayout title="Redefinir senha" description="Escolha uma nova senha para acessar sua conta">
     <!-- Redefinição concluída (precede os demais estados: após remover o
          token da URL, a view continua exibindo o sucesso) -->
-    <div v-if="done" class="space-y-5 text-center">
-      <CircleCheck class="mx-auto size-10 text-success" aria-hidden="true" />
+    <div v-if="done" class="space-y-5">
+      <CircleCheck class="size-8 text-success" aria-hidden="true" />
       <p class="text-sm text-text-secondary">
-        Senha redefinida com sucesso! Entre com sua nova senha.
+        Senha redefinida com sucesso. Entre com sua nova senha.
       </p>
       <RouterLink to="/login" class="block">
         <AppButton block>Ir para o login</AppButton>
@@ -115,8 +115,8 @@ async function onSubmit() {
     </div>
 
     <!-- Token ausente -->
-    <div v-else-if="!token" class="space-y-5 text-center">
-      <TriangleAlert class="mx-auto size-10 text-error" aria-hidden="true" />
+    <div v-else-if="!token" class="space-y-5">
+      <TriangleAlert class="size-8 text-error" aria-hidden="true" />
       <p class="text-sm text-text-secondary">
         Link de redefinição inválido. Solicite um novo link de recuperação de senha.
       </p>
@@ -134,10 +134,10 @@ async function onSubmit() {
     <form v-else class="space-y-4" novalidate @submit.prevent="onSubmit">
       <FormAlert v-if="errorMessage" variant="error" :message="errorMessage" />
 
-      <p v-if="tokenError" class="text-center text-sm text-text-secondary">
+      <p v-if="tokenError" class="text-sm text-text-secondary">
         <RouterLink
           :to="{ name: 'forgot-password' }"
-          class="font-medium text-text-primary underline underline-offset-4 transition-colors duration-150 hover:opacity-75 motion-reduce:transition-none"
+          class="font-medium text-text-primary underline decoration-border-strong decoration-1 underline-offset-4 transition-colors duration-150 hover:decoration-text-primary motion-reduce:transition-none"
         >
           Solicitar novo link
         </RouterLink>
@@ -172,14 +172,14 @@ async function onSubmit() {
         @blur="validateField('confirmPassword')"
       />
 
-      <AppButton type="submit" size="lg" block :loading="submitting">
+      <AppButton type="submit" size="lg" block class="mt-6" :loading="submitting">
         {{ submitting ? 'Redefinindo…' : 'Redefinir senha' }}
       </AppButton>
 
-      <p class="text-center text-sm text-text-secondary">
+      <p class="text-sm text-text-secondary">
         <RouterLink
           :to="{ name: 'login' }"
-          class="font-medium text-text-primary underline underline-offset-4 transition-colors duration-150 hover:opacity-75 motion-reduce:transition-none"
+          class="font-medium text-text-primary underline decoration-border-strong decoration-1 underline-offset-4 transition-colors duration-150 hover:decoration-text-primary motion-reduce:transition-none"
         >
           Voltar ao login
         </RouterLink>

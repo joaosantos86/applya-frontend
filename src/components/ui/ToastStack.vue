@@ -28,7 +28,7 @@ const iconClasses = {
       v-for="toast in toasts"
       :key="toast.id"
       role="status"
-      class="pointer-events-auto flex w-full max-w-sm items-center gap-2.5 rounded-xl border px-3.5 py-3 text-sm shadow-lg"
+      class="pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-lg border py-3 pr-2 pl-4 text-sm shadow-lg"
       :class="variantClasses[toast.variant]"
     >
       <CircleCheck
@@ -49,7 +49,7 @@ const iconClasses = {
 
       <button
         type="button"
-        class="rounded-md p-1 text-text-secondary transition-colors hover:bg-background hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        class="rounded-md p-1 text-text-muted transition-colors hover:bg-subtle hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         aria-label="Fechar notificação"
         @click="dismissToast(toast.id)"
       >

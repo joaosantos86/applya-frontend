@@ -6,6 +6,9 @@
  */
 export function isInternalPath(path: unknown): path is string {
   return (
-    typeof path === 'string' && path.startsWith('/') && !path.startsWith('//') && !path.includes('\\')
+    typeof path === 'string' &&
+    path.startsWith('/') &&
+    !path.startsWith('//') &&
+    !path.includes('\\')
   )
 }

@@ -9,10 +9,13 @@ const props = withDefaults(
     description?: string
     /** Rótulo acessível do botão de fechar. */
     closeLabel?: string
+    /** Largura do painel: `md` (formulários curtos) ou `lg` (listas). */
+    size?: 'md' | 'lg'
   }>(),
   {
     description: undefined,
     closeLabel: 'Fechar',
+    size: 'md',
   },
 )
 
@@ -93,11 +96,7 @@ onBeforeUnmount(() => {
 <template>
   <Teleport to="body">
     <div v-if="open" class="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-      <div
-        class="absolute inset-0 bg-text-primary/30 backdrop-blur-[2px]"
-        aria-hidden="true"
-        @click="emit('close')"
-      />
+      <div class="absolute inset-0 bg-overlay/50" aria-hidden="true" @click="emit('close')" />
 
       <div
         ref="panel"
@@ -106,11 +105,12 @@ onBeforeUnmount(() => {
         :aria-labelledby="titleId"
         :aria-describedby="description ? descriptionId : undefined"
         tabindex="-1"
-        class="relative z-10 max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-2xl border border-border bg-surface p-6 shadow-xl focus:outline-none sm:rounded-2xl"
+        :class="size === 'lg' ? 'max-w-2xl' : 'max-w-md'"
+        class="relative z-10 max-h-[90vh] w-full overflow-y-auto rounded-t-xl border border-border bg-surface p-6 shadow-lg focus:outline-none sm:rounded-xl"
       >
         <div class="mb-5 flex items-start justify-between gap-4">
           <div>
-            <h2 :id="titleId" class="text-lg font-semibold text-text-primary">{{ title }}</h2>
+            <h2 :id="titleId" class="text-base font-semibold text-text-primary">{{ title }}</h2>
             <p v-if="description" :id="descriptionId" class="mt-1 text-sm text-text-secondary">
               {{ description }}
             </p>
@@ -118,7 +118,7 @@ onBeforeUnmount(() => {
 
           <button
             type="button"
-            class="rounded-md p-1.5 text-text-secondary transition-colors hover:bg-background hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            class="-mt-1 -mr-1 rounded-md p-1.5 text-text-muted transition-colors hover:bg-subtle hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             :aria-label="closeLabel"
             @click="emit('close')"
           >

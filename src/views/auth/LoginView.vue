@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
+import { LockKeyhole, Mail } from '@lucide/vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 
 import AuthLayout from '@/components/auth/AuthLayout.vue'
@@ -52,7 +53,7 @@ async function onResendVerification() {
     await resendVerification(unverifiedEmail.value)
     resendFeedback.value = {
       variant: 'success',
-      message: 'E-mail de confirmação reenviado! Verifique sua caixa de entrada.',
+      message: 'E-mail de confirmação reenviado. Verifique sua caixa de entrada.',
     }
     start()
   } catch (error) {
@@ -103,11 +104,8 @@ async function onSubmit() {
 </script>
 
 <template>
-  <AuthLayout
-    title="Bem-vindo de volta"
-    description="Entre com sua conta para continuar criando seus currículos."
-  >
-    <form class="space-y-4" novalidate @submit.prevent="onSubmit">
+  <AuthLayout title="Entrar no Applya" description="Acesse seu currículo-base e suas versões">
+    <form class="space-y-3" novalidate @submit.prevent="onSubmit">
       <FormAlert v-if="serverError" variant="error" :message="serverError" />
 
       <div v-if="unverifiedEmail" class="space-y-3">
@@ -115,7 +113,11 @@ async function onSubmit() {
           variant="error"
           message="Seu e-mail ainda não foi confirmado. Reenvie o link de confirmação para ativar sua conta."
         />
-        <FormAlert v-if="resendFeedback" :variant="resendFeedback.variant" :message="resendFeedback.message" />
+        <FormAlert
+          v-if="resendFeedback"
+          :variant="resendFeedback.variant"
+          :message="resendFeedback.message"
+        />
         <AppButton
           type="button"
           variant="outline"
@@ -133,42 +135,50 @@ async function onSubmit() {
       <AppInput
         v-model="form.email"
         label="E-mail"
+        hide-label
         type="email"
         autocomplete="email"
-        placeholder="voce@exemplo.com"
+        placeholder="E-mail"
         maxlength="254"
         :error="errors.email"
         :disabled="auth.loading"
         required
         @input="clearFieldError('email')"
         @blur="validateField('email')"
-      />
+      >
+        <template #leading>
+          <Mail class="size-4" aria-hidden="true" />
+        </template>
+      </AppInput>
 
-      <div class="space-y-1.5">
-        <PasswordInput
-          v-model="form.password"
-          label="Senha"
-          autocomplete="current-password"
-          placeholder="Sua senha"
-          maxlength="256"
-          :error="errors.password"
-          :disabled="auth.loading"
-          required
-          @input="clearFieldError('password')"
-          @blur="validateField('password')"
-        />
+      <PasswordInput
+        v-model="form.password"
+        label="Senha"
+        hide-label
+        autocomplete="current-password"
+        placeholder="Senha"
+        maxlength="256"
+        :error="errors.password"
+        :disabled="auth.loading"
+        required
+        @input="clearFieldError('password')"
+        @blur="validateField('password')"
+      >
+        <template #leading>
+          <LockKeyhole class="size-4" aria-hidden="true" />
+        </template>
+      </PasswordInput>
 
-        <div class="text-right">
-          <RouterLink
-            :to="{ name: 'forgot-password' }"
-            class="text-sm font-medium text-text-primary underline underline-offset-4 transition-colors duration-150 hover:opacity-75 motion-reduce:transition-none"
-          >
-            Esqueceu sua senha?
-          </RouterLink>
-        </div>
+      <div class="flex justify-end">
+        <RouterLink
+          :to="{ name: 'forgot-password' }"
+          class="text-xs text-text-secondary transition-colors duration-150 hover:text-text-primary motion-reduce:transition-none"
+        >
+          Esqueceu sua senha?
+        </RouterLink>
       </div>
 
-      <AppButton type="submit" size="lg" block :loading="auth.loading">
+      <AppButton type="submit" size="lg" block class="mt-2" :loading="auth.loading">
         {{ auth.loading ? 'Entrando…' : 'Entrar' }}
       </AppButton>
     </form>
@@ -177,7 +187,7 @@ async function onSubmit() {
       Não tem uma conta?
       <RouterLink
         :to="{ name: 'register' }"
-        class="font-medium text-text-primary underline underline-offset-4 transition-colors duration-150 hover:opacity-75 motion-reduce:transition-none"
+        class="font-medium text-text-primary underline decoration-border-strong decoration-1 underline-offset-4 transition-colors duration-150 hover:decoration-text-primary motion-reduce:transition-none"
       >
         Criar conta
       </RouterLink>

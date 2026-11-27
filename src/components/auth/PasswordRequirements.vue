@@ -20,9 +20,7 @@ const items = computed(() => [
 
 <template>
   <div class="rounded-lg border border-border bg-background/60 p-3">
-    <p class="mb-2 text-xs font-medium uppercase tracking-wide text-text-secondary">
-      Sua senha precisa ter
-    </p>
+    <p class="mb-2 text-xs font-medium text-text-secondary">Sua senha precisa ter</p>
     <ul class="space-y-1.5">
       <li
         v-for="item in items"

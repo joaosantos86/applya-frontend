@@ -1,31 +1,152 @@
 @import 'tailwindcss';
 
 /* ---------------------------------------------------------------------------
- * Applya — Design tokens (identidade visual "Warm Peach")
+ * Applya — Design tokens (direção "Editorial sóbrio", derivada do Warm Peach)
  *
  * Cada token vira uma utility do Tailwind v4 (ex.: `bg-background`,
  * `text-text-primary`, `border-border`). Não espalhe valores hexadecimais
  * pelos componentes: use sempre os tokens.
  *
- * `--color-success` é a única cor fora da paleta base, usada exclusivamente
- * para feedback de sucesso (checklists, confirmações), onde uma cor de
- * validação melhora o entendimento sem conflitar com o pêssego principal.
+ * - Superfícies e texto vêm de uma única rampa neutra levemente quente
+ *   (stone). O chrome fica quieto; quem carrega a atenção é o currículo.
+ * - `primary` é a tinta: ações principais em quase-preto com texto claro.
+ * - `accent` é o pêssego do Warm Peach. Uso restrito à assinatura da marca
+ *   (o ponto do wordmark, o marcador de item ativo) e a detalhes ilustrativos.
+ *   Nunca em superfícies ou como cor de texto.
+ * - `success` e `error` só carregam significado (feedback e validação).
  * ------------------------------------------------------------------------- */
 @theme {
   --font-sans:
-    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
-    Arial, sans-serif;
+    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  /* Tipografia do documento (prévia do currículo). */
+  --font-serif: 'Source Serif 4', ui-serif, Georgia, Cambria, 'Times New Roman', serif;
 
-  /* Cores */
-  --color-background: #f7f5ef;
+  /* Superfícies */
+  --color-background: #fafaf9;
   --color-surface: #ffffff;
-  --color-primary: #ffca91;
-  --color-primary-hover: #f4b66f;
-  --color-text-primary: #1e1e1e;
-  --color-text-secondary: #77736d;
-  --color-border: #e6e1d8;
-  --color-error: #c2413b;
+  --color-subtle: #f5f5f4;
+
+  /* Texto — contraste sobre background: 16,5:1 · 7,2:1 · 4,5:1 */
+  --color-text-primary: #1c1917;
+  --color-text-secondary: #57534e;
+  --color-text-muted: #78716c;
+
+  /* Bordas */
+  --color-border: #e7e5e4;
+  --color-border-strong: #d6d3d1;
+
+  /* Ação principal (tinta) */
+  --color-primary: #1c1917;
+  --color-primary-hover: #44403c;
+  --color-on-primary: #fafaf9;
+
+  /* Pêssego Warm Peach — assinatura da marca */
+  --color-accent: #f4b66f;
+  --color-accent-soft: #ffca91;
+
+  /* Semânticas */
+  --color-error: #b42318;
+  --color-on-error: #ffffff;
   --color-success: #3f7a4f;
+
+  /* Véu de modais e do menu mobile (sempre escuro, nos dois temas). */
+  --color-overlay: #0c0a09;
+
+  /* Anel de foco: pêssego escurecido, 3:1 sobre background e surface
+   * (WCAG 1.4.11). */
+  --color-ring: #b8692a;
+}
+
+/* ---------------------------------------------------------------------------
+ * Modo escuro
+ *
+ * Segue o sistema por padrão; `data-theme` no <html> (ver `useTheme`) força
+ * claro ou escuro. Os mesmos tokens são redefinidos, então nenhum componente
+ * precisa de variantes `dark:`.
+ *
+ * - Profundidade vem de degraus de superfície e bordas, não de sombras.
+ * - A ação principal vira quase-branco com texto escuro.
+ * - `error`/`success` clareiam para manter contraste AA sobre o fundo escuro.
+ * ------------------------------------------------------------------------- */
+@layer theme {
+  :root[data-theme='dark'] {
+    --color-background: #121110;
+    --color-surface: #1a1817;
+    --color-subtle: #252322;
+    --color-text-primary: #f5f5f4;
+    --color-text-secondary: #a8a29e;
+    --color-text-muted: #8a837d;
+    --color-border: #2e2b29;
+    --color-border-strong: #44403c;
+    --color-primary: #f5f5f4;
+    --color-primary-hover: #d6d3d1;
+    --color-on-primary: #1c1917;
+    --color-error: #f97066;
+    --color-on-error: #1c1917;
+    --color-success: #73c08a;
+    --color-ring: #e0975a;
+    color-scheme: dark;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --color-background: #121110;
+      --color-surface: #1a1817;
+      --color-subtle: #252322;
+      --color-text-primary: #f5f5f4;
+      --color-text-secondary: #a8a29e;
+      --color-text-muted: #8a837d;
+      --color-border: #2e2b29;
+      --color-border-strong: #44403c;
+      --color-primary: #f5f5f4;
+      --color-primary-hover: #d6d3d1;
+      --color-on-primary: #1c1917;
+      --color-error: #f97066;
+      --color-on-error: #1c1917;
+      --color-success: #73c08a;
+      --color-ring: #e0975a;
+      color-scheme: dark;
+    }
+  }
+
+  /*
+   * Tinta: superfície sempre escura, em qualquer tema (telas de
+   * autenticação). Aplica todos os tokens escuros no escopo; `bg-background`
+   * vira o preto da página e `bg-surface` o degrau elevado sobre ele.
+   */
+  .ink {
+    --color-background: #0c0a09;
+    --color-surface: #1f1d1b;
+    --color-subtle: #292524;
+    --color-text-primary: #fafaf9;
+    --color-text-secondary: #a8a29e;
+    --color-text-muted: #8a837d;
+    --color-border: #2e2b29;
+    --color-border-strong: #44403c;
+    --color-primary: #f5f5f4;
+    --color-primary-hover: #d6d3d1;
+    --color-on-primary: #1c1917;
+    --color-error: #f97066;
+    --color-on-error: #1c1917;
+    --color-success: #73c08a;
+    --color-ring: #e0975a;
+    color-scheme: dark;
+  }
+
+  /*
+   * Papel: o documento do currículo é sempre uma folha clara, em qualquer
+   * tema, como será impresso/exportado. Restaura os tokens claros no escopo.
+   */
+  .paper {
+    --color-surface: #ffffff;
+    --color-subtle: #f5f5f4;
+    --color-text-primary: #1c1917;
+    --color-text-secondary: #57534e;
+    --color-text-muted: #78716c;
+    --color-border: #e7e5e4;
+    color-scheme: light;
+  }
 }
 
 @layer base {
@@ -37,8 +158,22 @@
     @apply min-h-screen font-sans;
   }
 
+  /*
+   * Preenchimento automático do navegador: o Chrome pinta o campo de azul por
+   * cima do tema. A sombra interna repinta com a superfície do token e a
+   * transição longa impede o flash da cor padrão.
+   */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-text-primary);
+    -webkit-box-shadow: 0 0 0 1000px var(--color-surface) inset;
+    caret-color: var(--color-text-primary);
+    transition: background-color 9999s ease-out 0s;
+  }
+
   /* Contorno de foco visível e consistente em todo o app. */
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-primary;
+    @apply outline-2 outline-offset-2 outline-ring;
   }
 }

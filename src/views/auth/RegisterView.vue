@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import { LockKeyhole, Mail, User } from '@lucide/vue'
 
 import AuthLayout from '@/components/auth/AuthLayout.vue'
 import PasswordRequirements from '@/components/auth/PasswordRequirements.vue'
@@ -86,24 +87,24 @@ async function onSubmit() {
 <template>
   <AuthLayout
     title="Crie sua conta"
-    description="Comece a organizar seus currículos em poucos minutos."
+    description="Um currículo-base para começar, versões para cada vaga depois"
   >
     <form class="space-y-4" novalidate @submit.prevent="onSubmit">
       <FormAlert v-if="serverError" variant="error" :message="serverError" />
 
       <div v-if="emailTaken" class="space-y-3">
         <FormAlert variant="error" message="Este e-mail já está cadastrado." />
-        <p class="text-center text-sm text-text-secondary">
+        <p class="text-sm text-text-secondary">
           <RouterLink
             :to="{ name: 'login' }"
-            class="font-medium text-text-primary underline underline-offset-4 transition-colors duration-150 hover:opacity-75 motion-reduce:transition-none"
+            class="font-medium text-text-primary underline decoration-border-strong decoration-1 underline-offset-4 transition-colors duration-150 hover:decoration-text-primary motion-reduce:transition-none"
           >
             Entrar
           </RouterLink>
           ou
           <RouterLink
             :to="{ name: 'forgot-password' }"
-            class="font-medium text-text-primary underline underline-offset-4 transition-colors duration-150 hover:opacity-75 motion-reduce:transition-none"
+            class="font-medium text-text-primary underline decoration-border-strong decoration-1 underline-offset-4 transition-colors duration-150 hover:decoration-text-primary motion-reduce:transition-none"
           >
             recuperar a senha
           </RouterLink>
@@ -121,7 +122,11 @@ async function onSubmit() {
         required
         @input="clearFieldError('name')"
         @blur="validateField('name')"
-      />
+      >
+        <template #leading>
+          <User class="size-4" aria-hidden="true" />
+        </template>
+      </AppInput>
 
       <AppInput
         v-model="form.email"
@@ -135,7 +140,11 @@ async function onSubmit() {
         required
         @input="clearFieldError('email')"
         @blur="validateField('email')"
-      />
+      >
+        <template #leading>
+          <Mail class="size-4" aria-hidden="true" />
+        </template>
+      </AppInput>
 
       <div class="space-y-2">
         <PasswordInput
@@ -149,7 +158,11 @@ async function onSubmit() {
           required
           @input="clearFieldError('password')"
           @blur="validateField('password')"
-        />
+        >
+          <template #leading>
+            <LockKeyhole class="size-4" aria-hidden="true" />
+          </template>
+        </PasswordInput>
         <PasswordRequirements :password="form.password" />
       </div>
 
@@ -164,9 +177,13 @@ async function onSubmit() {
         required
         @input="clearFieldError('confirmPassword')"
         @blur="validateField('confirmPassword')"
-      />
+      >
+        <template #leading>
+          <LockKeyhole class="size-4" aria-hidden="true" />
+        </template>
+      </PasswordInput>
 
-      <AppButton type="submit" size="lg" block :loading="submitting">
+      <AppButton type="submit" size="lg" block class="mt-6" :loading="submitting">
         {{ submitting ? 'Criando conta…' : 'Criar conta' }}
       </AppButton>
     </form>
@@ -175,7 +192,7 @@ async function onSubmit() {
       Já tem uma conta?
       <RouterLink
         :to="{ name: 'login' }"
-        class="font-medium text-text-primary underline underline-offset-4 transition-colors duration-150 hover:opacity-75 motion-reduce:transition-none"
+        class="font-medium text-text-primary underline decoration-border-strong decoration-1 underline-offset-4 transition-colors duration-150 hover:decoration-text-primary motion-reduce:transition-none"
       >
         Entrar
       </RouterLink>

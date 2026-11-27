@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { Mail } from '@lucide/vue'
 
 import AuthLayout from '@/components/auth/AuthLayout.vue'
 import AppButton from '@/components/ui/AppButton.vue'
@@ -57,17 +58,17 @@ async function onSubmit() {
 <template>
   <AuthLayout
     title="Esqueceu sua senha?"
-    description="Informe seu e-mail e enviaremos um link para redefinir sua senha."
+    description="Informe seu e-mail e enviaremos um link para redefinir sua senha"
   >
     <div v-if="sent" class="space-y-5">
       <FormAlert
         variant="success"
         message="Se existir uma conta associada a este e-mail, enviaremos um link para redefinir sua senha. Verifique também a pasta de spam."
       />
-      <p class="text-center text-sm text-text-secondary">
+      <p class="text-sm text-text-secondary">
         <RouterLink
           :to="{ name: 'login' }"
-          class="font-medium text-text-primary underline underline-offset-4 transition-colors duration-150 hover:opacity-75 motion-reduce:transition-none"
+          class="font-medium text-text-primary underline decoration-border-strong decoration-1 underline-offset-4 transition-colors duration-150 hover:decoration-text-primary motion-reduce:transition-none"
         >
           Voltar ao login
         </RouterLink>
@@ -89,17 +90,21 @@ async function onSubmit() {
         required
         @input="clearFieldError"
         @blur="validateField"
-      />
+      >
+        <template #leading>
+          <Mail class="size-4" aria-hidden="true" />
+        </template>
+      </AppInput>
 
-      <AppButton type="submit" size="lg" block :loading="sending">
+      <AppButton type="submit" size="lg" block class="mt-6" :loading="sending">
         {{ sending ? 'Enviando…' : 'Enviar link de recuperação' }}
       </AppButton>
 
-      <p class="text-center text-sm text-text-secondary">
+      <p class="text-sm text-text-secondary">
         Lembrou sua senha?
         <RouterLink
           :to="{ name: 'login' }"
-          class="font-medium text-text-primary underline underline-offset-4 transition-colors duration-150 hover:opacity-75 motion-reduce:transition-none"
+          class="font-medium text-text-primary underline decoration-border-strong decoration-1 underline-offset-4 transition-colors duration-150 hover:decoration-text-primary motion-reduce:transition-none"
         >
           Voltar ao login
         </RouterLink>

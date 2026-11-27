@@ -50,12 +50,12 @@ const describedBy = computed(() => {
       :required="required"
       :aria-invalid="error ? true : undefined"
       :aria-describedby="describedBy"
-      class="w-full resize-y rounded-lg border bg-surface px-3 py-2.5 text-sm text-text-primary shadow-sm transition-colors duration-150 placeholder:text-text-secondary/70 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none"
+      class="w-full resize-y rounded-md border bg-surface px-3 py-2 text-sm leading-relaxed text-text-primary shadow-xs transition-colors duration-150 placeholder:text-text-muted/70 hover:border-border-strong focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none"
       :class="error ? 'border-error' : 'border-border'"
       v-bind="$attrs"
     />
 
     <p v-if="error" :id="errorId" class="mt-1.5 text-sm text-error">{{ error }}</p>
-    <p v-else-if="hint" :id="hintId" class="mt-1.5 text-sm text-text-secondary">{{ hint }}</p>
+    <p v-else-if="hint" :id="hintId" class="mt-1.5 text-xs text-text-secondary">{{ hint }}</p>
   </div>
 </template>

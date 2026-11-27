@@ -91,14 +91,14 @@ async function onConfirm() {
 <template>
   <AuthLayout
     title="Confirme seu e-mail"
-    description="Confirme seu endereço de e-mail para ativar sua conta."
+    description="Confirme seu endereço de e-mail para ativar sua conta"
   >
     <!-- Confirmação concluída (precede os demais estados: após remover o
          token da URL, a view continua exibindo o sucesso) -->
-    <div v-if="status === 'success'" class="space-y-5 text-center">
-      <CircleCheck class="mx-auto size-10 text-success" aria-hidden="true" />
+    <div v-if="status === 'success'" class="space-y-5">
+      <CircleCheck class="size-8 text-success" aria-hidden="true" />
       <p class="text-sm text-text-secondary">
-        E-mail confirmado com sucesso! Sua conta está ativa e pronta para usar.
+        E-mail confirmado com sucesso. Sua conta está ativa e pronta para usar.
       </p>
       <RouterLink to="/login" class="block">
         <AppButton block>Ir para o login</AppButton>
@@ -106,8 +106,8 @@ async function onConfirm() {
     </div>
 
     <!-- Token ausente -->
-    <div v-else-if="!token" class="space-y-5 text-center">
-      <TriangleAlert class="mx-auto size-10 text-error" aria-hidden="true" />
+    <div v-else-if="!token" class="space-y-5">
+      <TriangleAlert class="size-8 text-error" aria-hidden="true" />
       <p class="text-sm text-text-secondary">
         Link de confirmação inválido. Solicite um novo e-mail de confirmação ou entre na sua conta.
       </p>
@@ -122,9 +122,9 @@ async function onConfirm() {
     </div>
 
     <!-- Confirmação em andamento -->
-    <div v-else-if="status === 'confirming'" class="space-y-4 text-center">
+    <div v-else-if="status === 'confirming'" class="space-y-4">
       <LoaderCircle
-        class="mx-auto size-10 animate-spin text-primary motion-reduce:animate-none"
+        class="size-8 animate-spin text-primary motion-reduce:animate-none"
         aria-hidden="true"
       />
       <p class="text-sm text-text-secondary">Confirmando seu e-mail…</p>
@@ -138,10 +138,10 @@ async function onConfirm() {
       />
       <div class="flex flex-col gap-3">
         <AppButton v-if="errorCode === null" block @click="onConfirm">Tentar novamente</AppButton>
-        <RouterLink v-if="errorCode === 'token_used'" to="/login" class="block text-center">
+        <RouterLink v-if="errorCode === 'token_used'" to="/login" class="block">
           <AppButton block>Ir para o login</AppButton>
         </RouterLink>
-        <RouterLink v-else :to="resendLocation" class="block text-center">
+        <RouterLink v-else :to="resendLocation" class="block">
           <AppButton variant="outline" block>Solicitar novo e-mail de confirmação</AppButton>
         </RouterLink>
       </div>
@@ -155,10 +155,10 @@ async function onConfirm() {
       <AppButton block size="lg" :loading="confirming" @click="onConfirm">
         {{ confirming ? 'Confirmando…' : 'Confirmar meu e-mail' }}
       </AppButton>
-      <p class="text-center text-sm text-text-secondary">
+      <p class="text-sm text-text-secondary">
         <RouterLink
           :to="{ name: 'login' }"
-          class="font-medium text-text-primary underline underline-offset-4 transition-colors duration-150 hover:opacity-75 motion-reduce:transition-none"
+          class="font-medium text-text-primary underline decoration-border-strong decoration-1 underline-offset-4 transition-colors duration-150 hover:decoration-text-primary motion-reduce:transition-none"
         >
           Voltar ao login
         </RouterLink>
